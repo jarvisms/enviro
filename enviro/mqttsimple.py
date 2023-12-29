@@ -57,8 +57,8 @@ class MQTTClient:
     def set_last_will(self, topic, msg, retain=False, qos=0):
         assert 0 <= qos <= 2
         assert topic
-        self.lw_topic = topic
-        self.lw_msg = msg
+        self.lw_topic = topic.encode()
+        self.lw_msg = msg.encode()
         self.lw_qos = qos
         self.lw_retain = retain
 
@@ -120,6 +120,8 @@ class MQTTClient:
         self.sock.write(b"\xc0\0")
 
     def publish(self, topic, msg, retain=False, qos=0):
+        topic = topic.encode()
+        msg = msg.encode()
         pkt = bytearray(b"\x30\0\0\0")
         pkt[0] |= qos << 1 | retain
         sz = 2 + len(topic) + len(msg)
