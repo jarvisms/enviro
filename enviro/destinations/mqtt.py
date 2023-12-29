@@ -62,7 +62,7 @@ def hass_discovery(board_type):
     mqtt_discovery("Enviro Wind Speed", "wind_speed", "m/s", "wind_speed", board_type) # Wind Speed
     mqtt_discovery("Enviro Rain", "precipitation", "mm", "rain", board_type) # Rain
     mqtt_discovery("Enviro Rain Per Second", "precipitation", "mm/s", "rain_per_second", board_type) # Rain Per Second
-    #mqtt_discovery("Enviro Wind Direction", "", "°", "wind_direction", board_type) # Wind Direction //HASS doesn't have a device class for direction//
+    mqtt_discovery("Enviro Wind Direction", None, "°", "wind_direction", board_type) # Wind Direction //HASS doesn't have a device class for direction//
   elif (board_type == "grow"):
     mqtt_discovery("Enviro Luminance", "illuminance", "lx", "luminance", board_type) # Luminance
     mqtt_discovery("Enviro Moisture A", "humidity", "%", "moisture_a", board_type) # Moisture A
@@ -70,8 +70,8 @@ def hass_discovery(board_type):
     mqtt_discovery("Enviro Moisture C", "humidity", "%", "moisture_c", board_type) # Moisture C
   elif (board_type == "indoor"):
     mqtt_discovery("Enviro Luminance", "illuminance", "lx", "luminance", board_type) # Luminance
-    #mqtt_discovery("Enviro Gas Resistance", "", "Ω", "gas_resistance", board_type) # Gas Resistance //HASS doesn't support resistance as a device class//
-    mqtt_discovery("Enviro AQI", "aqi", "&", "aqi", board_type) # AQI
+    mqtt_discovery("Enviro Gas Resistance", None, "Ω", "gas_resistance", board_type) # Gas Resistance //HASS doesn't support resistance as a device class//
+    mqtt_discovery("Enviro AQI", "aqi", "%", "aqi", board_type) # AQI
     mqtt_discovery("Enviro Colour Temperature", "temperature", "K", "color_temperature", board_type) # Colo(u)r Temperature
   elif (board_type == "urban"):
     mqtt_discovery("Enviro Noise", "voltage", "V", "noise", board_type) # Noise
@@ -109,6 +109,8 @@ def mqtt_discovery(name, device_class, unit, value_name, model ):
     mqtt_client.publish(f"homeassistant/sensor/{nickname}/{value_name}/config", ujson.dumps(obj), retain=True)
     mqtt_client.disconnect()
     return UPLOAD_SUCCESS
-  except:
-    logging.debug(f"  - an exception occurred when uploading")
-    
+  except Exception as exc:
+    import sys, io
+    buf = io.StringIO()
+    sys.print_exception(exc, buf)
+    logging.debug(f"  - an exception occurred during mqtt discovery", buf.getvalue())
