@@ -42,6 +42,11 @@ try:
     if not enviro.sync_clock_from_ntp():
       # failed to talk to ntp server go back to sleep for another cycle
       enviro.halt("! failed to synchronise clock")  
+    # Add HASS Discovery command after syncing clock (so it's not done too often)
+    if enviro.config.destination == "mqtt":
+        if enviro.config.hass_discovery:
+          if enviro.connect_to_wifi():
+            enviro.hass_discovery()
 
   # check disk space...
   if enviro.low_disk_space():
@@ -64,11 +69,6 @@ try:
   # TODO this seems to be useful to keep around?
   filesystem_stats = os.statvfs(".")
   enviro.logging.debug(f"> {filesystem_stats[3]} blocks free out of {filesystem_stats[2]}")
-
-  # Add HASS Discovery command before taking new readings
-  if enviro.config.destination == "mqtt":
-      if enviro.config.hass_discovery:
-        enviro.hass_discovery()
 
   # TODO should the board auto take a reading when the timer has been set, or wait for the time?
   # take a reading from the onboard sensors
