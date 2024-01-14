@@ -394,7 +394,7 @@ def get_sensor_readings():
     logging.info(f"  - seconds since last reading: {seconds_since_last}")
 
 
-  readings = get_board().get_sensor_readings(seconds_since_last)
+  readings = get_board().get_sensor_readings(seconds_since_last, vbus_present)
   if hasattr(config, 'enable_battery_voltage') and config.enable_battery_voltage:
     readings["voltage"] = get_battery_voltage()
 
