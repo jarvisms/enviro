@@ -1,6 +1,6 @@
 import machine
 
-ADC_VOLT_CONVERSATION = 3.3 / 65535
+ADC_VOLT_CONVERSION = 3.3 / 65535
 
 
 def set_pad(gpio, value):
@@ -27,4 +27,4 @@ def get_battery_voltage():
 
 def _read_vsys_voltage():
   adc_Vsys = machine.ADC(3)
-  return adc_Vsys.read_u16() * 3.0 * ADC_VOLT_CONVERSATION
+  return adc_Vsys.read_u16() * 3.0 * ADC_VOLT_CONVERSION
