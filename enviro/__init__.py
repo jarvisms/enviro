@@ -637,7 +637,7 @@ def sleep(time_override=None):
     if hasattr(board, "check_trigger"):
       board.check_trigger()
 
-    #time.sleep(0.25)
+    machine.lightsleep(250)
 
     if button_pin.value(): # allow button to force reset
       break
