@@ -11,6 +11,7 @@ def upload_reading(reading):
   server = config.mqtt_broker_address
   username = config.mqtt_broker_username
   password = config.mqtt_broker_password
+  qos = config.mqtt_qos
   nickname = reading["nickname"]
   
   try:
@@ -26,7 +27,7 @@ def upload_reading(reading):
       mqtt_client = MQTTClient(reading["uid"], server, user=username, password=password, keepalive=60)
     # Now continue with connection and upload
     mqtt_client.connect()
-    mqtt_client.publish(f"enviro/{nickname}", ujson.dumps(reading), retain=True)
+    mqtt_client.publish(f"enviro/{nickname}", ujson.dumps(reading), retain=True, qos=qos)
     mqtt_client.disconnect()
     return UPLOAD_SUCCESS
 
@@ -53,6 +54,27 @@ def upload_reading(reading):
   return UPLOAD_FAILED
 
 def hass_discovery(board_type):
+  server = config.mqtt_broker_address
+  username = config.mqtt_broker_username
+  password = config.mqtt_broker_password
+  nickname = config.nickname
+  try:
+    if config.mqtt_broker_ca_file:
+    # Using SSL
+      f = open("ca.crt")
+      ssl_data = f.read()
+      f.close()
+      mqtt_client = MQTTClient(nickname, server, user=username, password=password, keepalive=60,
+                               ssl=True, ssl_params={'cert': ssl_data})
+    else:
+    # Not using SSL
+      mqtt_client = MQTTClient(nickname, server, user=username, password=password, keepalive=60)
+    mqtt_client.connect()
+  except Exception as exc:
+    import sys, io
+    buf = io.StringIO()
+    sys.print_exception(exc, buf)
+    logging.debug(f"  - an exception occurred during mqtt discovery", buf.getvalue())
   mqtt_discovery("Enviro Temperature", "temperature", "°C", "temperature", board_type) # Temperature
   mqtt_discovery("Enviro Pressure", "pressure", "hPa", "pressure", board_type) # Pressure
   mqtt_discovery("Enviro Humidity", "humidity", "%", "humidity", board_type) # Humidity
@@ -78,12 +100,10 @@ def hass_discovery(board_type):
     mqtt_discovery("Enviro PM1", "pm1", "µg/m³", "pm1", board_type) # PM1
     mqtt_discovery("Enviro PM2.5", "pm25", "µg/m³", "pm2_5", board_type) # PM2_5
     mqtt_discovery("Enviro PM10", "pm10", "µg/m³", "pm10", board_type) # PM10
+  mqtt_client.disconnect()
   
 
 def mqtt_discovery(name, device_class, unit, value_name, model ):
-  server = config.mqtt_broker_address
-  username = config.mqtt_broker_username
-  password = config.mqtt_broker_password
   nickname = config.nickname
   from ucollections import OrderedDict
   obj = OrderedDict({
@@ -104,10 +124,7 @@ def mqtt_discovery(name, device_class, unit, value_name, model ):
   })
   try:
     # attempt to publish reading
-    mqtt_client = MQTTClient(nickname, server, user=username, password=password, keepalive=60)
-    mqtt_client.connect()
     mqtt_client.publish(f"homeassistant/sensor/{nickname}/{value_name}/config", ujson.dumps(obj), retain=True)
-    mqtt_client.disconnect()
     return UPLOAD_SUCCESS
   except Exception as exc:
     import sys, io

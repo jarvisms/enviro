@@ -37,6 +37,7 @@ custom_http_password = None
 mqtt_broker_address = None
 mqtt_broker_username = None
 mqtt_broker_password = None
+mqtt_qos = 0
 # mqtt broker if using local SSL
 mqtt_broker_ca_file = None
 # Home Assistant Discovery setting
