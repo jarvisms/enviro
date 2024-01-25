@@ -26,3 +26,9 @@ def upload_reading(reading):
     logging.debug(f"  - an exception occurred when uploading")
 
   return UPLOAD_FAILED
+
+def connect():
+  pass
+
+def disconnect():
+  pass

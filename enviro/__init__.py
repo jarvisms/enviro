@@ -461,6 +461,7 @@ def upload_readings():
     exec(f"import enviro.destinations.{destination}")
     destination_module = sys.modules[f"enviro.destinations.{destination}"]
     destination_module.log_destination()
+    destination_module.connect()
 
     for cache_file in os.ilistdir("uploads"):
       try:
@@ -505,6 +506,14 @@ def upload_readings():
   except ImportError:
     logging.error(f"! cannot find destination {destination}")
     return False
+  
+  except OSError:
+    logging.error("Failed to connect")
+
+  try:
+    destination_module.disconnect()
+  except:
+    logging.error("Error while disconnecting, but job done so doesn't matter")
 
   finally:
     # Disconnect wifi
