@@ -96,7 +96,7 @@ def hass_discovery(board_type):
   elif (board_type == "indoor"):
     mqtt_discovery("Enviro Luminance", "illuminance", "lx", "luminance", board_type) # Luminance
     mqtt_discovery("Enviro Gas Resistance", None, "Ω", "gas_resistance", board_type) # Gas Resistance //HASS doesn't support resistance as a device class//
-    mqtt_discovery("Enviro AQI", "aqi", "%", "aqi", board_type) # AQI
+    mqtt_discovery("Enviro AQI", "aqi", None, "aqi", board_type) # AQI
     mqtt_discovery("Enviro Colour Temperature", "temperature", "K", "color_temperature", board_type) # Colo(u)r Temperature
   elif (board_type == "urban"):
     mqtt_discovery("Enviro Noise", "voltage", "V", "noise", board_type) # Noise
